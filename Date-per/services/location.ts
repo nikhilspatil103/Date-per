@@ -16,10 +16,15 @@ class LocationService {
   async getCurrentLocation() {
     try {
       const hasPermission = await this.requestPermission();
-      if (!hasPermission) return null;
+      if (!hasPermission) {
+        console.log('Location permission denied');
+        return null;
+      }
 
       const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced
+        accuracy: Location.Accuracy.Balanced,
+        timeInterval: 5000,
+        distanceInterval: 0
       });
       
       return {
@@ -27,7 +32,7 @@ class LocationService {
         lng: location.coords.longitude
       };
     } catch (error) {
-      console.error('Get location error:', error);
+      console.log('Location unavailable (this is normal on web/simulator)');
       return null;
     }
   }
@@ -35,7 +40,10 @@ class LocationService {
   async updateLocationOnServer() {
     try {
       const location = await this.getCurrentLocation();
-      if (!location) return;
+      if (!location) {
+        console.log('Skipping location update - location unavailable');
+        return;
+      }
 
       const token = await AsyncStorage.getItem('authToken');
       await fetch(`${API_URL}/auth/profile`, {
@@ -46,8 +54,9 @@ class LocationService {
         },
         body: JSON.stringify({ location })
       });
+      console.log('Location updated successfully');
     } catch (error) {
-      console.error('Update location error:', error);
+      console.log('Location update skipped');
     }
   }
 }
