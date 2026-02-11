@@ -77,7 +77,7 @@ class WebSocketService {
     });
 
     this.socket.on('connect_error', (error) => {
-      console.error('WebSocket connection error:', error);
+      console.log('WebSocket connection issue (will retry automatically)');
     });
 
     this.socket.on('disconnect', () => {
