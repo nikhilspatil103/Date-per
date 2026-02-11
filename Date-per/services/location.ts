@@ -37,7 +37,7 @@ class LocationService {
       if (!location) return;
 
       const token = await AsyncStorage.getItem('authToken');
-      await fetch('http://192.168.1.102:3000/auth/profile', {
+      await fetch(`${API_URL}}/auth/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

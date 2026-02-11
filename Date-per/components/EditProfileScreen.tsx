@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Modal, TextInput, Platform, StatusBar, Image, BackHandler } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
-import { authAPI } from '../services/auth';
+import { authAPI } from '../services}/auth';
 import Avatar from '../components/Avatar';
 import Toast from '../components/Toast';
 import { useTheme } from '../contexts/ThemeContext';

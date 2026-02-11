@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 
-const DEFAULT_AVATAR = 'https://ui-avatars.com/api/?background=random&name=';
+const DEFAULT_AVATAR = 'https://ui-avatars.com}/api/?background=random&name=';
 
 const COLORS = [
   '#667eea', '#f093fb', '#4facfe', '#43e97b', '#fa709a',

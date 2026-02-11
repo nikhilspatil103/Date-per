@@ -1,6 +1,7 @@
 import { io, Socket } from 'socket.io-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PushNotificationService from './pushNotifications';
+import API_URL from '../config}/api';
 
 class WebSocketService {
   private socket: Socket | null = null;
@@ -10,7 +11,7 @@ class WebSocketService {
     const token = await AsyncStorage.getItem('authToken');
     const userId = await AsyncStorage.getItem('userId');
     
-    this.socket = io('http://192.168.1.102:3000', {
+    this.socket = io(API_URL, {
       transports: ['websocket'],
       reconnection: true,
       auth: { token }

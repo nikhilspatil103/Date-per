@@ -62,7 +62,7 @@ export default function FindScreen({ onLogout, isActive, pendingNotificationUser
   const loadProfiles = async () => {
     const token = await AsyncStorage.getItem('authToken');
     try {
-      const response = await fetch('http://192.168.1.102:3000/api/nearby', {
+      const response = await fetch(`${API_URL}}/api/nearby', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -82,7 +82,7 @@ export default function FindScreen({ onLogout, isActive, pendingNotificationUser
   const loadUnreadCount = async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const response = await fetch('http://192.168.1.102:3000/api/notifications', {
+      const response = await fetch(`${API_URL}}/api/notifications', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();

@@ -65,7 +65,7 @@ export default function ChatListScreen({ onChatSelect, onUnreadChange, isActive,
         isSystem: true
       };
       
-      const response = await fetch('http://192.168.1.102:3000/api/messages/chats/list', {
+      const response = await fetch(`${API_URL}}/api/messages/chats/list', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json();
@@ -79,7 +79,7 @@ export default function ChatListScreen({ onChatSelect, onUnreadChange, isActive,
         return;
       }
       
-      const contactsResponse = await fetch('http://192.168.1.102:3000/api/contacts', {
+      const contactsResponse = await fetch(`${API_URL}}/api/contacts', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const contacts = await contactsResponse.json();
@@ -91,7 +91,7 @@ export default function ChatListScreen({ onChatSelect, onUnreadChange, isActive,
         // Fetch user from database if not in contacts
         if (!userInfo) {
           try {
-            const userResponse = await fetch(`http://192.168.1.102:3000/api/user/${chat._id}`, {
+            const userResponse = await fetch(`http://192.168.1.102:3000}/api/user/${chat._id}`, {
               headers: { Authorization: `Bearer ${token}` }
             });
             if (userResponse.ok) {

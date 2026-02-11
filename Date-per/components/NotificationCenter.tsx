@@ -30,7 +30,7 @@ export default function NotificationCenter({ onClose, pendingProfileId, onProfil
   const loadNotifications = async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const response = await fetch('http://192.168.1.102:3000/api/notifications', {
+      const response = await fetch(`${API_URL}}/api/notifications', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -49,7 +49,7 @@ export default function NotificationCenter({ onClose, pendingProfileId, onProfil
   const markAsRead = async (id: string) => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      await fetch(`http://192.168.1.102:3000/api/notifications/read/${id}`, {
+      await fetch(`http://192.168.1.102:3000}/api/notifications/read/${id}`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -62,7 +62,7 @@ export default function NotificationCenter({ onClose, pendingProfileId, onProfil
   const markAllAsRead = async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      await fetch('http://192.168.1.102:3000/api/notifications/read-all', {
+      await fetch(`${API_URL}}/api/notifications/read-all', {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -75,7 +75,7 @@ export default function NotificationCenter({ onClose, pendingProfileId, onProfil
   const deleteNotification = async (id: string) => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      await fetch(`http://192.168.1.102:3000/api/notifications/${id}`, {
+      await fetch(`http://192.168.1.102:3000}/api/notifications/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -99,7 +99,7 @@ export default function NotificationCenter({ onClose, pendingProfileId, onProfil
   const openProfile = async (userId: string) => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const response = await fetch(`http://192.168.1.102:3000/api/user/${userId}`, {
+      const response = await fetch(`http://192.168.1.102:3000}/api/user/${userId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const profile = await response.json();

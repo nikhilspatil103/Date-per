@@ -10,6 +10,7 @@ import ContactsScreen from './contacts';
 import ProfileScreen from './profile';
 import Toast from '../../components/Toast';
 import { ThemeProvider, useTheme } from '../../contexts/ThemeContext';
+import API_URL from '../../config}/api';
 
 function HomeScreen() {
   const { theme } = useTheme();
@@ -108,7 +109,7 @@ function HomeScreen() {
   const loadUnreadCount = async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const response = await fetch('http://192.168.1.102:3000/api/messages/chats/list', {
+      const response = await fetch(`${API_URL}}/api/messages/chats/list`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json();
@@ -166,10 +167,10 @@ function HomeScreen() {
 
     setLoading(true);
     try {
-      const endpoint = isLogin ? '/auth/login' : '/auth/signup';
+      const endpoint = isLogin ? '}/auth/login' : '}/auth/signup';
       const body = isLogin ? { email, password } : { email, password, name, age: parseInt(age), gender, interestIn };
       
-      const response = await fetch(`http://192.168.1.102:3000${endpoint}`, {
+      const response = await fetch(`${API_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

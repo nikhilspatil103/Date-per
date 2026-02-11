@@ -53,7 +53,7 @@ export default function UserProfileDetailScreen({ profile, onClose, onLikeUpdate
   const checkIfContact = async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const response = await fetch('http://192.168.1.102:3000/api/contacts', {
+      const response = await fetch(`${API_URL}}/api/contacts', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const contacts = await response.json();
@@ -66,7 +66,7 @@ export default function UserProfileDetailScreen({ profile, onClose, onLikeUpdate
   const toggleContact = async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const endpoint = isContact ? '/api/contacts/remove' : '/api/contacts/add';
+      const endpoint = isContact ? '}/api/contacts/remove' : '}/api/contacts/add';
       await fetch(`http://192.168.1.102:3000${endpoint}`, {
         method: 'POST',
         headers: {
@@ -84,7 +84,7 @@ export default function UserProfileDetailScreen({ profile, onClose, onLikeUpdate
   const toggleLike = async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const response = await fetch(`http://192.168.1.102:3000/api/likes/toggle/${profile._id}`, {
+      const response = await fetch(`http://192.168.1.102:3000}/api/likes/toggle/${profile._id}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` }
       });

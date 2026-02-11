@@ -43,7 +43,7 @@ export default function ContactsScreen({ isActive }: { isActive?: boolean }) {
   const loadContacts = async () => {
     const token = await AsyncStorage.getItem('authToken');
     try {
-      const response = await fetch('http://192.168.1.102:3000/api/contacts', {
+      const response = await fetch(`${API_URL}}/api/contacts', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
