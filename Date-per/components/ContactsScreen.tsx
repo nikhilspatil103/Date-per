@@ -4,7 +4,8 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, Platform, St
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import WebSocketService from '../services/websocket';
 import ChatScreen from './ChatScreen';
-import Avatar from './Avatar';
+import AvatarV3 from './AvatarV3';
+import HeartLoader from './HeartLoader';
 import { useTheme } from '../contexts/ThemeContext';
 
 const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 44 : StatusBar.currentHeight || 0;
@@ -14,6 +15,7 @@ export default function ContactsScreen({ isActive }: { isActive?: boolean }) {
   const [contacts, setContacts] = useState<any[]>([]);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (isActive) {
@@ -44,6 +46,7 @@ export default function ContactsScreen({ isActive }: { isActive?: boolean }) {
   const loadContacts = async () => {
     const token = await AsyncStorage.getItem('authToken');
     try {
+      setLoading(true);
       const response = await fetch(`${API_URL}/api/contacts`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -51,6 +54,8 @@ export default function ContactsScreen({ isActive }: { isActive?: boolean }) {
       setContacts(data);
     } catch {
       setContacts([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -85,7 +90,7 @@ export default function ContactsScreen({ isActive }: { isActive?: boolean }) {
     return (
       <TouchableOpacity style={[styles.contactCard, { backgroundColor: theme.card, borderColor: theme.border }]} onPress={() => setSelectedUser(item)}>
         <View style={styles.avatarContainer}>
-          <Avatar photo={item.photo} name={item.name} size={64} />
+          <AvatarV3 photo={item.photo} name={item.name} size={64} />
           {item.online && <View style={[styles.onlineDot, { backgroundColor: theme.online }]} />}
         </View>
         <View style={styles.contactInfo}>
@@ -141,11 +146,15 @@ export default function ContactsScreen({ isActive }: { isActive?: boolean }) {
         refreshing={refreshing}
         onRefresh={onRefresh}
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyIcon}>👥</Text>
-            <Text style={[styles.emptyTitle, { color: theme.text }]}>No Contacts Yet</Text>
-            <Text style={[styles.emptyText, { color: theme.textSecondary }]}>Add contacts from the Discover tab to keep in touch even when they're offline</Text>
-          </View>
+          loading ? (
+            <HeartLoader message="Loading contacts..." subtext="" />
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyIcon}>👥</Text>
+              <Text style={[styles.emptyTitle, { color: theme.text }]}>No Contacts Yet</Text>
+              <Text style={[styles.emptyText, { color: theme.textSecondary }]}>Add contacts from the Discover tab to keep in touch even when they're offline</Text>
+            </View>
+          )
         }
       />
 

@@ -2,7 +2,7 @@ import API_URL from '../config/api';
 import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Platform, StatusBar, RefreshControl, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Avatar from './Avatar';
+import AvatarV3 from './AvatarV3';
 import UserProfileDetailScreen from './UserProfileDetailScreen';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -147,7 +147,7 @@ export default function NotificationCenter({ onClose, pendingProfileId, onProfil
                   if (notification.sender?._id) openProfile(notification.sender._id);
                 }}
               >
-                <Avatar photo={notification.sender?.profilePhoto} name={notification.sender?.name} size={50} />
+                <AvatarV3 photo={notification.sender?.profilePhoto} name={notification.sender?.name} size={50} />
                 <View style={styles.notificationContent}>
                   <Text style={[styles.notificationMessage, { color: theme.text }]}>
                     {notification.message}

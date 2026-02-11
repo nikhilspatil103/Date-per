@@ -30,6 +30,7 @@ function HomeScreen() {
   const [pendingChatUserId, setPendingChatUserId] = useState<string | null>(null);
   const [pendingNotificationUserId, setPendingNotificationUserId] = useState<string | null>(null);
   const fadeAnim = useRef(new Animated.Value(1)).current;
+  const unreadDebounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     checkAuth();
@@ -55,9 +56,11 @@ function HomeScreen() {
       
       const globalMessageHandler = (message: any) => {
         console.log('Global message handler received:', message);
-        if (activeTab === 'chat') {
+        // Debounced unread count update
+        if (unreadDebounceTimer.current) clearTimeout(unreadDebounceTimer.current);
+        unreadDebounceTimer.current = setTimeout(() => {
           loadUnreadCount();
-        }
+        }, 500);
       };
       
       WebSocketService.onMessage(globalMessageHandler);
@@ -65,6 +68,7 @@ function HomeScreen() {
       return () => {
         WebSocketService.removeMessageListener(globalMessageHandler);
         notificationResponseListener.remove();
+        if (unreadDebounceTimer.current) clearTimeout(unreadDebounceTimer.current);
       };
     }
   }, [isLoggedIn]);
@@ -257,7 +261,13 @@ function HomeScreen() {
             style={[styles.tab, activeTab === 'find' && styles.activeTab]} 
             onPress={() => handleTabChange('find')}
           >
-            <Text style={styles.tabIcon}>💕</Text>
+            <View style={styles.tabLogoContainer}>
+              <View style={styles.tabLogo}>
+                <View style={styles.tabHeartLeft} />
+                <View style={styles.tabHeartRight} />
+                <View style={styles.tabHeartBottom} />
+              </View>
+            </View>
             <Text style={[styles.tabLabel, { color: theme.textSecondary }, activeTab === 'find' && { color: theme.primary, fontWeight: '600' }]}>Nearby</Text>
           </TouchableOpacity>
           <TouchableOpacity 
@@ -518,6 +528,51 @@ const styles = StyleSheet.create({
   },
   tabLabel: {
     fontSize: 12,
+  },
+  tabLogoContainer: {
+    width: 28,
+    height: 28,
+    marginBottom: 4,
+  },
+  tabLogo: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#FF6B9D',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  tabHeartLeft: {
+    position: 'absolute',
+    top: 6,
+    left: 8,
+    width: 6,
+    height: 9,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 6,
+    borderTopRightRadius: 6,
+    transform: [{ rotate: '-45deg' }],
+  },
+  tabHeartRight: {
+    position: 'absolute',
+    top: 6,
+    right: 8,
+    width: 6,
+    height: 9,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 6,
+    borderTopRightRadius: 6,
+    transform: [{ rotate: '45deg' }],
+  },
+  tabHeartBottom: {
+    position: 'absolute',
+    bottom: 6,
+    left: 11,
+    width: 6,
+    height: 6,
+    backgroundColor: '#fff',
+    transform: [{ rotate: '45deg' }],
   },
   tabIconContainer: {
     position: 'relative',

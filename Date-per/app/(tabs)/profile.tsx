@@ -4,7 +4,8 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Platform, StatusB
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { authAPI } from '../../services/auth';
-import Avatar from '../../components/Avatar';
+import AvatarV3 from '../../components/AvatarV3';
+import HeartLoader from '../../components/HeartLoader';
 import EditProfileScreen from '../../components/EditProfileScreen';
 import CoinsScreen from '../../components/CoinsScreen';
 import Toast from '../../components/Toast';
@@ -23,6 +24,7 @@ export default function ProfileScreen({ onLogout }: { onLogout: () => void }) {
   const [profilePhoto, setProfilePhoto] = useState('');
   const [likesCount, setLikesCount] = useState(0);
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadUserData();
@@ -30,14 +32,15 @@ export default function ProfileScreen({ onLogout }: { onLogout: () => void }) {
   }, []);
 
   const loadUserData = async () => {
-    const userName = await AsyncStorage.getItem('userName');
-    const userEmail = await AsyncStorage.getItem('userEmail');
-    const userPhoto = await AsyncStorage.getItem('userProfilePhoto');
-    if (userName) setName(userName);
-    if (userEmail) setEmail(userEmail);
-    if (userPhoto) setProfilePhoto(userPhoto);
-    
     try {
+      setLoading(true);
+      const userName = await AsyncStorage.getItem('userName');
+      const userEmail = await AsyncStorage.getItem('userEmail');
+      const userPhoto = await AsyncStorage.getItem('userProfilePhoto');
+      if (userName) setName(userName);
+      if (userEmail) setEmail(userEmail);
+      if (userPhoto) setProfilePhoto(userPhoto);
+      
       const token = await AsyncStorage.getItem('authToken');
       const response = await fetch(`${API_URL}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -45,7 +48,9 @@ export default function ProfileScreen({ onLogout }: { onLogout: () => void }) {
       const data = await response.json();
       setLikesCount(data.likesCount || 0);
     } catch (err) {
-      console.log('Failed to load likes count:', err);
+      console.log('Failed to load user data:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -118,10 +123,14 @@ export default function ProfileScreen({ onLogout }: { onLogout: () => void }) {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
+        {loading ? (
+          <HeartLoader message="Loading profile..." subtext="" />
+        ) : (
+          <>
         <View style={[styles.profileCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
           <View style={styles.profileGrad}>
             <TouchableOpacity style={styles.avatarWrapper} onPress={handleAvatarPress} onLongPress={pickProfileImage}>
-              <Avatar photo={profilePhoto} name={name} size={120} />
+              <AvatarV3 photo={profilePhoto} name={name} size={120} />
               <View style={styles.editBadge}>
                 <Text style={styles.editBadgeText}>✏️</Text>
               </View>
@@ -212,6 +221,8 @@ export default function ProfileScreen({ onLogout }: { onLogout: () => void }) {
         </TouchableOpacity>
 
         <View style={{ height: 100 }} />
+          </>
+        )}
       </ScrollView>
 
       <Modal visible={showEditProfile} animationType="slide" presentationStyle="fullScreen" onRequestClose={handleCloseEdit}>
@@ -232,7 +243,7 @@ export default function ProfileScreen({ onLogout }: { onLogout: () => void }) {
             {profilePhoto ? (
               <Image source={{ uri: profilePhoto }} style={styles.fullPhotoImage} resizeMode="contain" />
             ) : (
-              <Avatar photo={profilePhoto} name={name} size={300} />
+              <AvatarV3 photo={profilePhoto} name={name} size={300} />
             )}
             <TouchableOpacity style={styles.changePhotoBtn} onPress={() => { setShowFullPhoto(false); pickProfileImage(); }}>
               <Text style={styles.changePhotoBtnText}>Change Photo</Text>

@@ -47,8 +47,8 @@ router.get('/', auth, async (req, res) => {
         distance,
         online: user.online,
         lastSeen: user.lastSeen,
-        likesCount: user.likedBy.length,
-        isLiked: currentUser.likes.includes(user._id)
+        likesCount: user.likedBy?.length || 0,
+        isLiked: currentUser.likes?.some(likeId => likeId.toString() === user._id.toString()) || false
       };
     });
     

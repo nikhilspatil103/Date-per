@@ -39,10 +39,35 @@ router.get('/chats/list', auth, async (req, res) => {
             }
           }
         }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      {
+        $unwind: '$user'
+      },
+      {
+        $project: {
+          _id: 1,
+          lastMessage: 1,
+          unreadCount: 1,
+          user: {
+            _id: '$user._id',
+            name: '$user.name',
+            profilePhoto: '$user.profilePhoto',
+            online: '$user.online',
+            lastSeen: '$user.lastSeen'
+          }
+        }
       }
     ]);
     
-    console.log('Aggregated chat list:', messages.length, 'chats');
+    console.log('Aggregated chat list with user data:', messages.length, 'chats');
     res.json(messages);
   } catch (error) {
     console.error('Chat list error:', error);

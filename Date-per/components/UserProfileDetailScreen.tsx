@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Platform, StatusBar, Modal, Dimensions, BackHandler, FlatList, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ChatScreen from './ChatScreen';
-import Avatar from '../components/Avatar';
+import AvatarV3 from '../components/AvatarV3';
 import { useTheme } from '../contexts/ThemeContext';
 
 const { width } = Dimensions.get('window');
@@ -26,14 +26,19 @@ export default function UserProfileDetailScreen({ profile, onClose, onLikeUpdate
   useEffect(() => {
     checkIfContact();
     
+    // Delay auto-scroll to improve initial render performance
     if (photos.length > 1) {
-      autoScrollInterval.current = setInterval(() => {
-        setCurrentPhotoIndex(prev => {
-          const next = (prev + 1) % photos.length;
-          photoScrollRef.current?.scrollToIndex({ index: next, animated: true });
-          return next;
-        });
-      }, 3000);
+      const timer = setTimeout(() => {
+        autoScrollInterval.current = setInterval(() => {
+          setCurrentPhotoIndex(prev => {
+            const next = (prev + 1) % photos.length;
+            photoScrollRef.current?.scrollToIndex({ index: next, animated: true });
+            return next;
+          });
+        }, 3000);
+      }, 1000);
+      
+      return () => clearTimeout(timer);
     }
     
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -83,6 +88,13 @@ export default function UserProfileDetailScreen({ profile, onClose, onLikeUpdate
   };
 
   const toggleLike = async () => {
+    // Optimistic update
+    const newLiked = !isLiked;
+    const newCount = newLiked ? likesCount + 1 : likesCount - 1;
+    setIsLiked(newLiked);
+    setLikesCount(newCount);
+    onLikeUpdate?.(newLiked, newCount);
+    
     try {
       const token = await AsyncStorage.getItem('authToken');
       const response = await fetch(`${API_URL}/api/likes/toggle/${profile._id}`, {
@@ -90,11 +102,16 @@ export default function UserProfileDetailScreen({ profile, onClose, onLikeUpdate
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json();
+      // Update with server response
       setIsLiked(data.liked);
       setLikesCount(data.likesCount);
       onLikeUpdate?.(data.liked, data.likesCount);
     } catch (error) {
       console.error('Toggle like error:', error);
+      // Revert on error
+      setIsLiked(!newLiked);
+      setLikesCount(likesCount);
+      onLikeUpdate?.(!newLiked, likesCount);
     }
   };
 
@@ -108,16 +125,19 @@ export default function UserProfileDetailScreen({ profile, onClose, onLikeUpdate
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
+            removeClippedSubviews={true}
+            maxToRenderPerBatch={2}
+            windowSize={3}
             onMomentumScrollEnd={(e) => {
               const index = Math.round(e.nativeEvent.contentOffset.x / width);
               setCurrentPhotoIndex(index);
             }}
             renderItem={({ item }) => (
-              <TouchableOpacity activeOpacity={1} onPress={() => setShowFullscreen(true)} style={{ width }}>
+              <TouchableOpacity activeOpacity={0.9} onPress={() => setShowFullscreen(true)} style={{ width, height: 420, justifyContent: 'center', alignItems: 'center' }}>
                 {item ? (
                   <Image source={{ uri: item }} style={styles.photoImage} />
                 ) : (
-                  <Avatar photo={item} name={profile.name} fullscreen={true} />
+                  <AvatarV3 photo={item} name={profile.name} size={200} />
                 )}
               </TouchableOpacity>
             )}
@@ -231,6 +251,9 @@ export default function UserProfileDetailScreen({ profile, onClose, onLikeUpdate
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
+            removeClippedSubviews={true}
+            maxToRenderPerBatch={2}
+            windowSize={3}
             initialScrollIndex={currentPhotoIndex}
             getItemLayout={(_, index) => ({ length: width, offset: width * index, index })}
             onMomentumScrollEnd={(e) => {
@@ -238,11 +261,11 @@ export default function UserProfileDetailScreen({ profile, onClose, onLikeUpdate
               setCurrentPhotoIndex(index);
             }}
             renderItem={({ item }) => (
-              <TouchableOpacity activeOpacity={1} onPress={() => setShowFullscreen(false)} style={{ width, height: '100%', justifyContent: 'center' }}>
+              <TouchableOpacity activeOpacity={1} onPress={() => setShowFullscreen(false)} style={{ width, height: '100%', justifyContent: 'center', alignItems: 'center' }}>
                 {item ? (
                   <Image source={{ uri: item }} style={styles.fullscreenImage} resizeMode="contain" />
                 ) : (
-                  <Avatar photo={item} name={profile.name} fullscreen={true} />
+                  <AvatarV3 photo={item} name={profile.name} size={300} />
                 )}
               </TouchableOpacity>
             )}
@@ -270,7 +293,7 @@ export default function UserProfileDetailScreen({ profile, onClose, onLikeUpdate
 const styles = StyleSheet.create({
   container: { flex: 1 },
   heroSection: { position: 'relative', height: 420, backgroundColor: '#1a1a1a' },
-  photoImage: { width: '100%', height: 420, resizeMode: 'cover' },
+  photoImage: { width: '100%', height: 420, resizeMode: 'cover', backgroundColor: '#1a1a1a' },
   photoIndicator: { position: 'absolute', bottom: 20, left: 0, right: 0, flexDirection: 'row', justifyContent: 'center', gap: 6 },
   dot: { width: 6, height: 6, borderRadius: 3 },
   fullscreenContainer: { flex: 1, backgroundColor: '#000' },

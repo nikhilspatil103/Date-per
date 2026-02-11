@@ -3,7 +3,7 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Modal, TextInput,
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { authAPI } from '../services/auth';
-import Avatar from '../components/Avatar';
+import AvatarV3 from '../components/AvatarV3';
 import Toast from '../components/Toast';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -157,7 +157,7 @@ export default function EditProfileScreen({ onClose }: { onClose: () => void }) 
             {profilePhoto ? (
               <Image source={{ uri: profilePhoto }} style={styles.profileImage} />
             ) : (
-              <Avatar name={name || 'User'} size={120} />
+              <AvatarV3 name={name || 'User'} size={120} />
             )}
             <TouchableOpacity style={styles.changePhotoBtn} onPress={(e) => { e.stopPropagation(); pickImage(true); }}>
               <Text style={styles.changePhotoText}>Change Photo</Text>

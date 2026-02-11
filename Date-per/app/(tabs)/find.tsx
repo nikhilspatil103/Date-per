@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Platform, StatusBar, Modal, RefreshControl } from 'react-native';
+import { useState, useEffect, useRef } from 'react';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Platform, StatusBar, Modal, RefreshControl, ActivityIndicator, Animated } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import WebSocketService from '../../services/websocket';
 import UserProfileDetailScreen from '../../components/UserProfileDetailScreen';
-import Avatar from '../../components/Avatar';
+import AvatarV3 from '../../components/AvatarV3';
 import NotificationCenter from '../../components/NotificationCenter';
+import HeartLoader from '../../components/HeartLoader';
 import { useTheme, colorSchemeNames } from '../../contexts/ThemeContext';
 import API_URL from '../../config/api';
 
@@ -23,16 +24,47 @@ export default function FindScreen({ onLogout, isActive, pendingNotificationUser
   const [ageRange, setAgeRange] = useState({ min: 18, max: 60 });
   const [unreadCount, setUnreadCount] = useState(0);
   const [pendingProfileId, setPendingProfileId] = useState<string | null>(null);
+  const likeUpdateTimer = useRef<NodeJS.Timeout | null>(null);
+  const [loading, setLoading] = useState(true);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const rotateAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (isActive) {
       loadProfiles();
       loadUnreadCount();
+      loadViewMode();
+    }
+    
+    if (loading) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.2,
+            duration: 800,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 800,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+
+      Animated.loop(
+        Animated.timing(rotateAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        })
+      ).start();
     }
     
     if (!isActive) return;
     
     const handleStatusChange = (message: any) => {
+      // Optimistic update for online/offline status
       if (message.type === 'userOnline') {
         setProfiles((prev: any[]) => prev.map((p: any) => 
           (p._id === message.userId || p.id === message.userId) ? { ...p, online: true } : p
@@ -48,6 +80,7 @@ export default function FindScreen({ onLogout, isActive, pendingNotificationUser
     
     const handleLikeNotification = (data: any) => {
       if (data.type === 'like') {
+        // Optimistic update for notification count
         setUnreadCount(prev => prev + 1);
       }
     };
@@ -57,12 +90,14 @@ export default function FindScreen({ onLogout, isActive, pendingNotificationUser
     return () => {
       WebSocketService.removeMessageListener(handleStatusChange);
       WebSocketService.removeMessageListener(handleLikeNotification);
+      if (likeUpdateTimer.current) clearTimeout(likeUpdateTimer.current);
     };
   }, [isActive]);
 
   const loadProfiles = async () => {
     const token = await AsyncStorage.getItem('authToken');
     try {
+      setLoading(true);
       const response = await fetch(`${API_URL}/api/nearby`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -71,6 +106,8 @@ export default function FindScreen({ onLogout, isActive, pendingNotificationUser
       setProfiles(data);
     } catch {
       setProfiles([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -90,6 +127,27 @@ export default function FindScreen({ onLogout, isActive, pendingNotificationUser
       setUnreadCount(data.unreadCount || 0);
     } catch (error) {
       console.error('Load unread count error:', error);
+    }
+  };
+
+  const loadViewMode = async () => {
+    try {
+      const savedViewMode = await AsyncStorage.getItem('nearbyViewMode');
+      if (savedViewMode === 'grid' || savedViewMode === 'list') {
+        setViewMode(savedViewMode);
+      }
+    } catch (error) {
+      console.log('Load view mode error:', error);
+    }
+  };
+
+  const toggleViewMode = async () => {
+    const newMode = viewMode === 'grid' ? 'list' : 'grid';
+    setViewMode(newMode);
+    try {
+      await AsyncStorage.setItem('nearbyViewMode', newMode);
+    } catch (error) {
+      console.log('Save view mode error:', error);
     }
   };
 
@@ -128,7 +186,7 @@ export default function FindScreen({ onLogout, isActive, pendingNotificationUser
           <TouchableOpacity style={styles.headerBtn} onPress={toggleTheme}>
             <Text style={styles.headerIcon}>{mode === 'light' ? '🌙' : '☀️'}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.headerBtn} onPress={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}>
+          <TouchableOpacity style={styles.headerBtn} onPress={toggleViewMode}>
             <Text style={styles.headerIcon}>{viewMode === 'grid' ? '☰' : '⊞'}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerBtn} onPress={() => setShowNotifications(true)}>
@@ -148,7 +206,9 @@ export default function FindScreen({ onLogout, isActive, pendingNotificationUser
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primary} />
         }
       >
-        {profiles.length === 0 ? (
+        {loading ? (
+          <HeartLoader message="Finding your match..." subtext="Searching nearby profiles" />
+        ) : profiles.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyIcon}>👥</Text>
             <Text style={[styles.emptyTitle, { color: theme.text }]}>No Profiles Found</Text>
@@ -158,10 +218,10 @@ export default function FindScreen({ onLogout, isActive, pendingNotificationUser
           <View style={styles.grid}>
             {filteredProfiles.map(profile => (
               <View key={profile._id || profile.id} style={styles.cardWrapper}>
-                <TouchableOpacity onPress={() => setSelectedProfile(profile)} activeOpacity={1}>
+                <TouchableOpacity onPress={() => setSelectedProfile(profile)} activeOpacity={0.7}>
                   <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
                     <View style={styles.imageWrapper}>
-                      <Avatar photo={profile?.photo} name={profile.name} size={'100%'} square={true} />
+                      <AvatarV3 photo={profile?.photo} name={profile.name} size={'100%'} square={true} />
                       <View style={styles.gradient} />
                       {profile.online && <View style={[styles.onlineDot, { backgroundColor: theme.online }]} />}
                     </View>
@@ -185,9 +245,9 @@ export default function FindScreen({ onLogout, isActive, pendingNotificationUser
           <View style={styles.list}>
             {filteredProfiles.map(profile => (
               <View key={profile._id || profile.id} style={styles.listItemWrapper}>
-                <TouchableOpacity style={[styles.listItem, { backgroundColor: theme.card, borderColor: theme.border }]} onPress={() => setSelectedProfile(profile)} activeOpacity={1}>
+                <TouchableOpacity style={[styles.listItem, { backgroundColor: theme.card, borderColor: theme.border }]} onPress={() => setSelectedProfile(profile)} activeOpacity={0.7}>
                   <View style={styles.listAvatarWrapper}>
-                    <Avatar photo={profile?.photo} name={profile.name} size={80} />
+                    <AvatarV3 photo={profile?.photo} name={profile.name} size={80} />
                     {profile.online && <View style={[styles.listOnlineDot, { backgroundColor: theme.online }]} />}
                   </View>
                   <View style={styles.listInfo}>
@@ -221,7 +281,7 @@ export default function FindScreen({ onLogout, isActive, pendingNotificationUser
         )}
       </TouchableOpacity>
 
-      <Modal visible={!!selectedProfile} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setSelectedProfile(null)}>
+      <Modal visible={!!selectedProfile} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setSelectedProfile(null)}>
         {selectedProfile && (
           <UserProfileDetailScreen 
             profile={selectedProfile} 

@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Platform, StatusBar, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import WebSocketService from '../../services/websocket';
 import ChatScreen from '../../components/ChatScreen';
 import SystemChatScreen from '../../components/SystemChatScreen';
-import Avatar from '../../components/Avatar';
+import AvatarV3 from '../../components/AvatarV3';
+import HeartLoader from '../../components/HeartLoader';
 import { useTheme } from '../../contexts/ThemeContext';
 import API_URL from '../../config/api';
 
@@ -16,6 +17,8 @@ export default function ChatListScreen({ onChatSelect, onUnreadChange, isActive,
   const [selectedChat, setSelectedChat] = useState<any>(null);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (isActive) {
@@ -26,13 +29,47 @@ export default function ChatListScreen({ onChatSelect, onUnreadChange, isActive,
     
     const handleNewMessage = (message: any) => {
       console.log('Chat list received new message:', message);
-      loadChats();
+      
+      // Optimistic update: Update chat list immediately
+      setChats(prevChats => {
+        const otherUserId = message.sender === message.receiver ? message.sender : 
+                           (prevChats.find(c => c._id === message.sender)?._id === message.sender ? message.sender : message.receiver);
+        
+        const existingChatIndex = prevChats.findIndex(c => c._id === otherUserId);
+        
+        if (existingChatIndex > -1) {
+          const updatedChats = [...prevChats];
+          const chat = { ...updatedChats[existingChatIndex] };
+          chat.lastMessage = message.text;
+          chat.time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+          chat.timestamp = Date.now();
+          
+          // Increment unread if not from current user
+          const currentUserId = AsyncStorage.getItem('userId');
+          if (message.sender !== currentUserId) {
+            chat.unread = (chat.unread || 0) + 1;
+          }
+          
+          updatedChats.splice(existingChatIndex, 1);
+          updatedChats.unshift(chat);
+          return updatedChats;
+        }
+        
+        return prevChats;
+      });
+      
+      // Debounced full reload (backup)
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+      debounceTimer.current = setTimeout(() => {
+        loadChats();
+      }, 2000);
     };
     
     WebSocketService.onMessage(handleNewMessage);
     
     return () => {
       WebSocketService.removeMessageListener(handleNewMessage);
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
     };
   }, [isActive]);
 
@@ -48,6 +85,7 @@ export default function ChatListScreen({ onChatSelect, onUnreadChange, isActive,
 
   const loadChats = async () => {
     try {
+      setLoading(true);
       const token = await AsyncStorage.getItem('authToken');
       const userId = await AsyncStorage.getItem('userId');
       console.log('Loading chats for userId:', userId);
@@ -70,7 +108,7 @@ export default function ChatListScreen({ onChatSelect, onUnreadChange, isActive,
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json();
-      console.log('Chat list response:', data);
+      console.log('Chat list response with user data:', data);
       
       if (!data || data.length === 0) {
         console.log('No chats found, showing system chat only');
@@ -80,51 +118,30 @@ export default function ChatListScreen({ onChatSelect, onUnreadChange, isActive,
         return;
       }
       
-      const contactsResponse = await fetch(`${API_URL}/api/contacts`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const contacts = await contactsResponse.json();
-      
-      const formattedChats = await Promise.all(data.map(async (chat: any) => {
-        const contact = contacts.find((c: any) => c._id === chat._id);
-        let userInfo = contact;
-        
-        // Fetch user from database if not in contacts
-        if (!userInfo) {
-          try {
-            const userResponse = await fetch(`${API_URL}/api/user/${chat._id}`, {
-              headers: { Authorization: `Bearer ${token}` }
-            });
-            if (userResponse.ok) {
-              userInfo = await userResponse.json();
-            }
-          } catch (err) {
-            console.log(`Failed to fetch user ${chat._id}:`, err);
-          }
-        }
-        
+      // Backend now returns user data, no need for extra API calls
+      const formattedChats = data.map((chat: any) => {
         const messageText = chat.lastMessage.text;
         const isImage = messageText?.startsWith('http') && (messageText.includes('cloudinary') || messageText.includes('res.cloudinary'));
         
         return {
           id: chat._id,
           _id: chat._id,
-          name: userInfo?.name || 'User',
-          photo: userInfo?.photo || userInfo?.profilePhoto,
+          name: chat.user?.name || 'User',
+          photo: chat.user?.profilePhoto,
           lastMessage: isImage ? '📷 Picture' : messageText,
           time: new Date(chat.lastMessage.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
           timestamp: new Date(chat.lastMessage.createdAt).getTime(),
           unread: chat.unreadCount,
-          online: userInfo?.online || false
+          online: chat.user?.online || false
         };
-      }));
+      });
       
       const sortedChats = formattedChats.sort((a: any, b: any) => b.timestamp - a.timestamp);
       
       // Add system chat at the top
       const allChats = [systemChat, ...sortedChats];
       
-      console.log('Formatted chats:', allChats);
+      console.log('Formatted chats:', allChats.length);
       setChats(allChats);
       const total = allChats.reduce((sum: number, chat: any) => sum + chat.unread, 0);
       setUnreadCount(total);
@@ -133,6 +150,8 @@ export default function ChatListScreen({ onChatSelect, onUnreadChange, isActive,
       }
     } catch (error) {
       console.error('Load chats error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -155,7 +174,7 @@ export default function ChatListScreen({ onChatSelect, onUnreadChange, isActive,
           </View>
         ) : (
           <>
-            <Avatar photo={item.photo} name={item.name} size={56} />
+            <AvatarV3 photo={item.photo} name={item.name} size={56} />
             {item.online && <View style={[styles.onlineDot, { backgroundColor: theme.online }]} />}
           </>
         )}
@@ -193,6 +212,7 @@ export default function ChatListScreen({ onChatSelect, onUnreadChange, isActive,
         contentContainerStyle={styles.listContent}
         refreshing={refreshing}
         onRefresh={onRefresh}
+        ListEmptyComponent={loading ? <HeartLoader message="Loading chats..." subtext="" /> : null}
       />
 
       <Modal visible={!!selectedChat} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setSelectedChat(null)}>

@@ -8,6 +8,8 @@ const colorSchemes = {
   green: { primary: '#34d399', headerBg: '#34d399' },
   orange: { primary: '#fb923c', headerBg: '#fb923c' },
   red: { primary: '#f87171', headerBg: '#f87171' },
+  grey: { primary: '#9ca3af', headerBg: '#9ca3af' },
+  teal: { primary: '#2dd4bf', headerBg: '#2dd4bf' },
 };
 
 const createTheme = (color: keyof typeof colorSchemes, isDark: boolean) => ({
@@ -99,4 +101,6 @@ export const colorSchemeNames: Record<ColorScheme, string> = {
   green: '💚 Green',
   orange: '🧡 Orange',
   red: '❤️ Red',
+  grey: '🩶 Grey',
+  teal: '💎 Teal',
 };
