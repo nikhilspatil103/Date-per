@@ -109,7 +109,7 @@ function HomeScreen() {
   const loadUnreadCount = async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const response = await fetch(`${API_URL}}/api/messages/chats/list`, {
+      const response = await fetch(`${API_URL}/api/messages/chats/list`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json();
@@ -167,7 +167,7 @@ function HomeScreen() {
 
     setLoading(true);
     try {
-      const endpoint = isLogin ? '}/auth/login' : '}/auth/signup';
+      const endpoint = isLogin ? '/auth/login' : '/auth/signup';
       const body = isLogin ? { email, password } : { email, password, name, age: parseInt(age), gender, interestIn };
       
       const response = await fetch(`${API_URL}${endpoint}`, {

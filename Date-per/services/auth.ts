@@ -1,9 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import API_URL from '../config}/api';
+import API_URL from '../config/api';
 
 export const authAPI = {
   login: async (email: string, password: string) => {
-    const response = await fetch(`${API_URL}}/auth/login`, {
+    const response = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -22,7 +22,7 @@ export const authAPI = {
 
   updateProfile: async (data: any) => {
     const token = await AsyncStorage.getItem('authToken');
-    const response = await fetch(`${API_URL}}/auth/profile`, {
+    const response = await fetch(`${API_URL}/auth/profile`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ export const authAPI = {
 
   getProfile: async () => {
     const token = await AsyncStorage.getItem('authToken');
-    const response = await fetch(`${API_URL}}/auth/me`, {
+    const response = await fetch(`${API_URL}/auth/me`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`

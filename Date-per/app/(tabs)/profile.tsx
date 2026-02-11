@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Platform, StatusBar, Modal, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
-import { authAPI } from '../../services}/auth';
+import { authAPI } from '../../services/auth';
 import Avatar from '../../components/Avatar';
 import EditProfileScreen from '../../components/EditProfileScreen';
 import CoinsScreen from '../../components/CoinsScreen';
@@ -39,7 +39,7 @@ export default function ProfileScreen({ onLogout }: { onLogout: () => void }) {
     
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const response = await fetch(`${API_URL}/auth/me`, {
+      const response = await fetch(`${API_URL/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json();
