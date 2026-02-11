@@ -1,3 +1,4 @@
+import API_URL from '../config/api';
 import * as Location from 'expo-location';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -37,7 +38,7 @@ class LocationService {
       if (!location) return;
 
       const token = await AsyncStorage.getItem('authToken');
-      await fetch(`${API_URL}}/auth/profile', {
+      await fetch(`${API_URL}/auth/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

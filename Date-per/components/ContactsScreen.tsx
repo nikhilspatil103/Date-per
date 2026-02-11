@@ -1,3 +1,4 @@
+import API_URL from '../config/api';
 import { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, Platform, StatusBar } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -43,7 +44,7 @@ export default function ContactsScreen({ isActive }: { isActive?: boolean }) {
   const loadContacts = async () => {
     const token = await AsyncStorage.getItem('authToken');
     try {
-      const response = await fetch(`${API_URL}}/api/contacts', {
+      const response = await fetch(`${API_URL}/api/contacts', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();

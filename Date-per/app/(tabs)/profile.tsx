@@ -1,3 +1,4 @@
+import API_URL from '../../config/api';
 import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Platform, StatusBar, Modal, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -38,7 +39,7 @@ export default function ProfileScreen({ onLogout }: { onLogout: () => void }) {
     
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const response = await fetch(`${API_URL}}/auth/me', {
+      const response = await fetch(`${API_URL}/auth/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json();
