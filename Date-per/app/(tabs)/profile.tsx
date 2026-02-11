@@ -39,7 +39,7 @@ export default function ProfileScreen({ onLogout }: { onLogout: () => void }) {
     
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const response = await fetch(`${API_URL/auth/me`, {
+      const response = await fetch(`${API_URL}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json();
