@@ -139,34 +139,24 @@ export default function ChatScreen({ chat, onClose }: { chat: any; onClose: () =
   };
 
   const pickMedia = async () => {
+    alert('Image sharing is temporarily disabled. Coming soon!');
+    return;
+    
+    /* Disabled due to memory issues with base64
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') return;
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images', 'videos'],
+      mediaTypes: ['images'],
       allowsEditing: true,
-      quality: 0.3,
-      base64: true,
+      quality: 0.1,
+      base64: false,
     });
 
     if (!result.canceled && result.assets[0]) {
-      const base64 = `data:image/jpeg;base64,${result.assets[0].base64}`;
-      if (base64.length > 500000) {
-        alert('Image too large. Please select a smaller image.');
-        return;
-      }
-      WebSocketService.sendMessage(myUserId, chat._id, base64);
-      const newMsg = {
-        id: Date.now(),
-        text: base64,
-        sender: 'me',
-        time: new Date(),
-        status: 'sent',
-        isMedia: true
-      };
-      setMessages(prev => [...prev, newMsg]);
-      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+      alert('Image upload coming soon!');
     }
+    */
   };
 
   const renderMessage = ({ item }: any) => {
@@ -183,7 +173,12 @@ export default function ChatScreen({ chat, onClose }: { chat: any; onClose: () =
         <View style={styles.messageContent}>
           <View style={[styles.messageBubble, item.sender === 'me' ? [styles.myMessage, { backgroundColor: theme.primary }] : [styles.otherMessage, { backgroundColor: theme.card }]]}>
             {isImage ? (
-              <Image source={{ uri: item.text }} style={styles.messageImage} />
+              <Image 
+                source={{ uri: item.text }} 
+                style={styles.messageImage}
+                resizeMode="cover"
+                onError={() => console.log('Image load error')}
+              />
             ) : (
               <Text style={[styles.messageText, { color: item.sender === 'me' ? '#fff' : theme.text }]}>{item.text}</Text>
             )}
