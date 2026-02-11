@@ -103,12 +103,15 @@ export default function ChatListScreen({ onChatSelect, onUnreadChange, isActive,
           }
         }
         
+        const messageText = chat.lastMessage.text;
+        const isImage = messageText?.startsWith('http') && (messageText.includes('cloudinary') || messageText.includes('res.cloudinary'));
+        
         return {
           id: chat._id,
           _id: chat._id,
           name: userInfo?.name || 'User',
           photo: userInfo?.photo || userInfo?.profilePhoto,
-          lastMessage: chat.lastMessage.text,
+          lastMessage: isImage ? '📷 Picture' : messageText,
           time: new Date(chat.lastMessage.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
           timestamp: new Date(chat.lastMessage.createdAt).getTime(),
           unread: chat.unreadCount,
