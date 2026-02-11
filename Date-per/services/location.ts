@@ -38,7 +38,7 @@ class LocationService {
       if (!location) return;
 
       const token = await AsyncStorage.getItem('authToken');
-      await fetch(`${API_URL/auth/profile', {
+      await fetch(`${API_URL}/auth/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
