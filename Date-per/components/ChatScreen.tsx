@@ -101,7 +101,7 @@ export default function ChatScreen({ chat, onClose }: { chat: any; onClose: () =
   const loadMessages = async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const response = await fetch(`${API_URL/api/messages/${chat._id}`, {
+      const response = await fetch(`${API_URL}/api/messages/${chat._id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json();
