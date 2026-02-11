@@ -54,7 +54,7 @@ export default function UserProfileDetailScreen({ profile, onClose, onLikeUpdate
   const checkIfContact = async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const response = await fetch(`${API_URL}/api/contacts', {
+      const response = await fetch(`${API_URL}/api/contacts`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const contacts = await response.json();

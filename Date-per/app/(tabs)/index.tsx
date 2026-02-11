@@ -10,7 +10,7 @@ import ContactsScreen from './contacts';
 import ProfileScreen from './profile';
 import Toast from '../../components/Toast';
 import { ThemeProvider, useTheme } from '../../contexts/ThemeContext';
-import API_URL from '../../config}/api';
+import API_URL from '../../config/api';
 
 function HomeScreen() {
   const { theme } = useTheme();

@@ -31,7 +31,7 @@ export default function NotificationCenter({ onClose, pendingProfileId, onProfil
   const loadNotifications = async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const response = await fetch(`${API_URL}/api/notifications', {
+      const response = await fetch(`${API_URL}/api/notifications`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -63,7 +63,7 @@ export default function NotificationCenter({ onClose, pendingProfileId, onProfil
   const markAllAsRead = async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      await fetch(`${API_URL}/api/notifications/read-all', {
+      await fetch(`${API_URL}/api/notifications/read-all`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
