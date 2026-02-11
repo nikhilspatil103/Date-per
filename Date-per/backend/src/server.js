@@ -11,6 +11,7 @@ const nearbyRoutes = require('./routes/nearby');
 const userRoutes = require('./routes/user');
 const likesRoutes = require('./routes/likes');
 const notificationsRoutes = require('./routes/notifications');
+const uploadRoutes = require('./routes/upload');
 const Message = require('./models/Message');
 const User = require('./models/User');
 const jwt = require('jsonwebtoken');
@@ -38,6 +39,7 @@ app.use('/api/messages', messagesRoutes);
 app.use('/api/nearby', nearbyRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/notifications', notificationsRoutes);
+app.use('/api', uploadRoutes);
 app.use('/api/likes', (req, res, next) => {
   req.io = io;
   next();

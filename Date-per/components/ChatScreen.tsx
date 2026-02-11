@@ -139,29 +139,69 @@ export default function ChatScreen({ chat, onClose }: { chat: any; onClose: () =
   };
 
   const pickMedia = async () => {
-    alert('Image sharing is temporarily disabled. Coming soon!');
-    return;
-    
-    /* Disabled due to memory issues with base64
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') return;
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Permission denied');
+        return;
+      }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      quality: 0.1,
-      base64: false,
-    });
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        quality: 0.5,
+        base64: true,
+      });
 
-    if (!result.canceled && result.assets[0]) {
-      alert('Image upload coming soon!');
+      if (!result.canceled && result.assets[0]) {
+        const base64 = `data:image/jpeg;base64,${result.assets[0].base64}`;
+        
+        // Show uploading message
+        const tempMsg = {
+          id: Date.now(),
+          text: '📤 Uploading image...',
+          sender: 'me',
+          time: new Date(),
+          status: 'sending'
+        };
+        setMessages(prev => [...prev, tempMsg]);
+
+        // Upload to Cloudinary via backend
+        const token = await AsyncStorage.getItem('authToken');
+        const uploadResponse = await fetch(`${API_URL}/api/upload-image`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ image: base64 })
+        });
+
+        const { imageUrl } = await uploadResponse.json();
+        
+        // Remove temp message and send actual image URL
+        setMessages(prev => prev.filter(m => m.id !== tempMsg.id));
+        
+        WebSocketService.sendMessage(myUserId, chat._id, imageUrl);
+        const newMsg = {
+          id: Date.now(),
+          text: imageUrl,
+          sender: 'me',
+          time: new Date(),
+          status: 'sent'
+        };
+        setMessages(prev => [...prev, newMsg]);
+        setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+      }
+    } catch (error) {
+      console.error('Image upload error:', error);
+      alert('Failed to upload image');
     }
-    */
   };
 
   const renderMessage = ({ item }: any) => {
     const timeStr = new Date(item.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    const isImage = item.text?.startsWith('data:image');
+    const isImage = item.text?.startsWith('http') && (item.text.includes('cloudinary') || item.text.includes('res.cloudinary'));
     
     return (
       <View style={[styles.messageRow, item.sender === 'me' ? styles.myMessageRow : styles.otherMessageRow]}>
