@@ -31,7 +31,7 @@ export default function NotificationCenter({ onClose, pendingProfileId, onProfil
   const loadNotifications = async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const response = await fetch(`${API_URL/api/notifications`, {
+      const response = await fetch(`${API_URL}/api/notifications`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -50,7 +50,7 @@ export default function NotificationCenter({ onClose, pendingProfileId, onProfil
   const markAsRead = async (id: string) => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      await fetch(`${API_URL/api/notifications/read/${id}`, {
+      await fetch(`${API_URL}/api/notifications/read/${id}`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -63,7 +63,7 @@ export default function NotificationCenter({ onClose, pendingProfileId, onProfil
   const markAllAsRead = async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      await fetch(`${API_URL/api/notifications/read-all`, {
+      await fetch(`${API_URL}/api/notifications/read-all`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -76,7 +76,7 @@ export default function NotificationCenter({ onClose, pendingProfileId, onProfil
   const deleteNotification = async (id: string) => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      await fetch(`${API_URL/api/notifications/${id}`, {
+      await fetch(`${API_URL}/api/notifications/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -100,7 +100,7 @@ export default function NotificationCenter({ onClose, pendingProfileId, onProfil
   const openProfile = async (userId: string) => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const response = await fetch(`${API_URL/api/user/${userId}`, {
+      const response = await fetch(`${API_URL}/api/user/${userId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const profile = await response.json();
