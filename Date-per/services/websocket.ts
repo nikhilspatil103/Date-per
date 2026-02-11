@@ -1,7 +1,7 @@
 import { io, Socket } from 'socket.io-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PushNotificationService from './pushNotifications';
-import API_URL from '../config}/api';
+import API_URL from '../config/api';
 
 class WebSocketService {
   private socket: Socket | null = null;
