@@ -177,15 +177,23 @@ export default function ChatScreen({ chat, onClose }: { chat: any; onClose: () =
           body: JSON.stringify({ image: base64 })
         });
 
-        const { imageUrl } = await uploadResponse.json();
+        if (!uploadResponse.ok) {
+          throw new Error('Upload failed');
+        }
+
+        const data = await uploadResponse.json();
+        
+        if (!data.imageUrl) {
+          throw new Error('No image URL returned');
+        }
         
         // Remove temp message and send actual image URL
         setMessages(prev => prev.filter(m => m.id !== tempMsg.id));
         
-        WebSocketService.sendMessage(myUserId, chat._id, imageUrl);
+        WebSocketService.sendMessage(myUserId, chat._id, data.imageUrl);
         const newMsg = {
           id: Date.now(),
-          text: imageUrl,
+          text: data.imageUrl,
           sender: 'me',
           time: new Date(),
           status: 'sent'
@@ -195,7 +203,9 @@ export default function ChatScreen({ chat, onClose }: { chat: any; onClose: () =
       }
     } catch (error) {
       console.error('Image upload error:', error);
-      alert('Failed to upload image');
+      alert('Failed to upload image. Please try again.');
+      // Remove uploading message if it exists
+      setMessages(prev => prev.filter(m => m.status !== 'sending'));
     }
   };
 
