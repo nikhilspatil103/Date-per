@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist/
+build/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# React Native
+.expo/
+.expo-shared/
+
+# Android
+*.apk
+*.aab
+android/app/build/
+android/.gradle/
+
+# iOS
+ios/Pods/
+ios/build/
+*.ipa
