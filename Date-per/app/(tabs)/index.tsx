@@ -9,20 +9,23 @@ import ChatListScreen from './chat';
 import ContactsScreen from './contacts';
 import ProfileScreen from './profile';
 import Toast from '../../components/Toast';
-import { ThemeProvider, useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import API_URL from '../../config/api';
 
 function HomeScreen() {
   const { theme } = useTheme();
   const [isLogin, setIsLogin] = useState(true);
+  const [signupStep, setSignupStep] = useState(1);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeTab, setActiveTab] = useState('find');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
   const [interestIn, setInterestIn] = useState('');
+  const [lookingFor, setLookingFor] = useState('');
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' });
   const [unreadCount, setUnreadCount] = useState(0);
@@ -41,6 +44,9 @@ function HomeScreen() {
       WebSocketService.connect();
       requestLocationPermission();
       setLocationAsked(true);
+      
+      // Load initial unread count
+      loadUnreadCount();
       
       // Handle notification taps
       const notificationResponseListener = PushNotificationService.addNotificationResponseListener((response) => {
@@ -154,35 +160,58 @@ function HomeScreen() {
   };
 
   const handleAuth = async () => {
-    if (!email || !password || (!isLogin && (!name || !age || !gender || !interestIn))) {
-      showToast('Please fill in all fields', 'error');
-      return;
+    if (isLogin) {
+      if (!email || !password) {
+        showToast('Please fill in all fields', 'error');
+        return;
+      }
+      if (!validateEmail(email)) {
+        showToast('Please enter a valid email', 'error');
+        return;
+      }
+      await loginUser();
+    } else {
+      if (signupStep === 1) {
+        if (!email || !password || !confirmPassword) {
+          showToast('Please fill in all fields', 'error');
+          return;
+        }
+        if (!validateEmail(email)) {
+          showToast('Please enter a valid email', 'error');
+          return;
+        }
+        if (password !== confirmPassword) {
+          showToast('Passwords do not match', 'error');
+          return;
+        }
+        if (password.length < 6) {
+          showToast('Password must be at least 6 characters', 'error');
+          return;
+        }
+        setSignupStep(2);
+      } else if (signupStep === 2) {
+        if (!name || !age || !gender || !interestIn) {
+          showToast('Please fill in all fields', 'error');
+          return;
+        }
+        if (parseInt(age) < 18) {
+          showToast('You must be at least 18 years old', 'error');
+          return;
+        }
+        await signupUser();
+      }
     }
+  };
 
-    if (!isLogin && parseInt(age) < 18) {
-      showToast('You must be at least 18 years old', 'error');
-      return;
-    }
-
-    if (!validateEmail(email)) {
-      showToast('Please enter a valid email', 'error');
-      return;
-    }
-
+  const loginUser = async () => {
     setLoading(true);
     try {
-      const endpoint = isLogin ? '/auth/login' : '/auth/signup';
-      const body = isLogin ? { email, password } : { email, password, name, age: parseInt(age), gender, interestIn };
-      
-      const response = await fetch(`${API_URL}${endpoint}`, {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ email, password }),
       });
-
       const data = await response.json();
-      console.log('API Response:', { status: response.status, data });
-
       if (response.ok && data.token) {
         await AsyncStorage.setItem('authToken', data.token);
         await AsyncStorage.setItem('userId', data.userId);
@@ -190,19 +219,45 @@ function HomeScreen() {
         await AsyncStorage.setItem('userName', data.name);
         if (data.interestIn) await AsyncStorage.setItem('userInterestIn', data.interestIn);
         if (data.gender) await AsyncStorage.setItem('userGender', data.gender);
-        if (data.height) await AsyncStorage.setItem('userHeight', data.height.toString());
-        if (data.graduation) await AsyncStorage.setItem('userGraduation', data.graduation);
         if (data.age) await AsyncStorage.setItem('userAge', data.age.toString());
         if (data.bio) await AsyncStorage.setItem('userBio', data.bio);
         if (data.profilePhoto) await AsyncStorage.setItem('userProfilePhoto', data.profilePhoto);
-        if (data.photos) await AsyncStorage.setItem('userPhotos', JSON.stringify(data.photos));
         setIsLoggedIn(true);
-        showToast(isLogin ? 'Login successful! 🎉' : 'Account created! 🎉');
+        showToast('Login successful! 🎉');
       } else {
-        showToast(data.message || 'Request failed', 'error');
+        showToast(data.message || 'Login failed', 'error');
       }
     } catch (error) {
-      console.error('API Error:', error);
+      showToast('Network error. Please try again.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signupUser = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/auth/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name, age: parseInt(age), gender, interestIn, bio: lookingFor }),
+      });
+      const data = await response.json();
+      if (response.ok && data.token) {
+        await AsyncStorage.setItem('authToken', data.token);
+        await AsyncStorage.setItem('userId', data.userId);
+        await AsyncStorage.setItem('userEmail', email);
+        await AsyncStorage.setItem('userName', name);
+        await AsyncStorage.setItem('userInterestIn', interestIn);
+        await AsyncStorage.setItem('userGender', gender);
+        await AsyncStorage.setItem('userAge', age);
+        if (lookingFor) await AsyncStorage.setItem('userBio', lookingFor);
+        setIsLoggedIn(true);
+        showToast('Account created! 🎉');
+      } else {
+        showToast(data.message || 'Signup failed', 'error');
+      }
+    } catch (error) {
       showToast('Network error. Please try again.', 'error');
     } finally {
       setLoading(false);
@@ -317,10 +372,12 @@ function HomeScreen() {
         onHide={() => setToast({ ...toast, visible: false })} 
       />
       <Text style={styles.logo}>💕</Text>
-      <Text style={styles.title}>DatePer</Text>
-      <Text style={styles.subtitle}>{isLogin ? 'Welcome back!' : 'Create your account'}</Text>
+      <Text style={styles.title}>Loop</Text>
+      <Text style={styles.subtitle}>
+        {isLogin ? 'Where Connections Come Full Circle' : signupStep === 1 ? 'Create your account' : 'Complete your profile'}
+      </Text>
       
-      {!isLogin && (
+      {!isLogin && signupStep === 2 ? (
         <>
           <TextInput
             style={styles.input}
@@ -372,27 +429,70 @@ function HomeScreen() {
               <Text style={[styles.pickerText, interestIn === 'Both' && styles.pickerTextActive]}>⚥ Both</Text>
             </TouchableOpacity>
           </View>
+          <TextInput
+            style={[styles.input, { height: 80, textAlignVertical: 'top', paddingTop: 15 }]}
+            placeholder="Tell us what you're looking for (Optional)"
+            value={lookingFor}
+            onChangeText={setLookingFor}
+            multiline
+            editable={!loading}
+          />
         </>
+      ) : !isLogin && signupStep === 1 ? (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            editable={!loading}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            editable={!loading}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry
+            editable={!loading}
+          />
+        </>
+      ) : isLogin ? (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            editable={!loading}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            editable={!loading}
+          />
+        </>
+      ) : null}
+      
+      {!isLogin && signupStep === 2 && (
+        <TouchableOpacity onPress={() => setSignupStep(1)} style={styles.backButton}>
+          <Text style={styles.backText}>← Back</Text>
+        </TouchableOpacity>
       )}
-      
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        editable={!loading}
-      />
-      
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        editable={!loading}
-      />
       
       <TouchableOpacity 
         style={[styles.button, loading && styles.buttonDisabled]} 
@@ -402,11 +502,11 @@ function HomeScreen() {
         {loading ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={styles.buttonText}>{isLogin ? 'Login' : 'Sign Up'}</Text>
+          <Text style={styles.buttonText}>{isLogin ? 'Login' : signupStep === 1 ? 'Next' : 'Sign Up'}</Text>
         )}
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => setIsLogin(!isLogin)} style={styles.switchButton}>
+      <TouchableOpacity onPress={() => { setIsLogin(!isLogin); setSignupStep(1); }} style={styles.switchButton}>
         <Text style={styles.switchText}>
           {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'}
         </Text>
@@ -474,6 +574,15 @@ const styles = StyleSheet.create({
   switchText: {
     color: '#FF6B9D',
     fontSize: 14,
+  },
+  backButton: {
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  backText: {
+    color: '#FF6B9D',
+    fontSize: 16,
+    fontWeight: '600',
   },
   label: {
     fontSize: 14,
@@ -597,9 +706,5 @@ const styles = StyleSheet.create({
 });
 
 export default function App() {
-  return (
-    <ThemeProvider>
-      <HomeScreen />
-    </ThemeProvider>
-  );
+  return <HomeScreen />;
 }

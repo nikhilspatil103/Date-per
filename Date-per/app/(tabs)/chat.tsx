@@ -15,6 +15,7 @@ export default function ChatListScreen({ onChatSelect, onUnreadChange, isActive,
   const { theme } = useTheme();
   const [chats, setChats] = useState<any[]>([]);
   const [selectedChat, setSelectedChat] = useState<any>(null);
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -155,6 +156,13 @@ export default function ChatListScreen({ onChatSelect, onUnreadChange, isActive,
     }
   };
 
+  const markAllAsRead = () => {
+    setChats(prev => prev.map(chat => ({ ...chat, unread: 0 })));
+    setUnreadCount(0);
+    if (onUnreadChange) onUnreadChange(0);
+    setShowActionsMenu(false);
+  };
+
   const onRefresh = async () => {
     setRefreshing(true);
     await loadChats();
@@ -200,7 +208,7 @@ export default function ChatListScreen({ onChatSelect, onUnreadChange, isActive,
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={[styles.header, { backgroundColor: theme.headerBg }]}>
         <Text style={[styles.title, { color: theme.headerText }]}>Messages</Text>
-        <TouchableOpacity style={styles.headerBtn}>
+        <TouchableOpacity style={styles.headerBtn} onPress={() => setShowActionsMenu(true)}>
           <Text style={styles.headerIcon}>✏️</Text>
         </TouchableOpacity>
       </View>
@@ -214,6 +222,26 @@ export default function ChatListScreen({ onChatSelect, onUnreadChange, isActive,
         onRefresh={onRefresh}
         ListEmptyComponent={loading ? <HeartLoader message="Loading chats..." subtext="" /> : null}
       />
+
+      <Modal visible={showActionsMenu} animationType="slide" transparent onRequestClose={() => setShowActionsMenu(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.actionsModal, { backgroundColor: theme.card }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: theme.border }]}>
+              <Text style={[styles.modalTitle, { color: theme.text }]}>Chat Actions</Text>
+              <TouchableOpacity onPress={() => setShowActionsMenu(false)}>
+                <Text style={[styles.closeBtn, { color: theme.textSecondary }]}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.actionsContent}>
+              <TouchableOpacity style={[styles.actionItem, { backgroundColor: theme.background }]} onPress={markAllAsRead}>
+                <Text style={styles.actionIcon}>✓</Text>
+                <Text style={[styles.actionText, { color: theme.text }]}>Mark all as read</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       <Modal visible={!!selectedChat} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setSelectedChat(null)}>
         {selectedChat && (
@@ -290,4 +318,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
   },
   unreadText: { color: '#fff', fontSize: 11, fontWeight: '700' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  actionsModal: { borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingBottom: 20 },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderBottomWidth: 1 },
+  modalTitle: { fontSize: 20, fontWeight: '800' },
+  closeBtn: { fontSize: 24, fontWeight: '300' },
+  actionsContent: { padding: 16 },
+  actionItem: { flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 12, marginBottom: 8 },
+  actionIcon: { fontSize: 24, marginRight: 12 },
+  actionText: { fontSize: 16, fontWeight: '600' }
 });

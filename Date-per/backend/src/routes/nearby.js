@@ -45,12 +45,23 @@ router.get('/', auth, async (req, res) => {
         bio: user.bio || 'No bio yet',
         photo: user.profilePhoto,
         distance,
+        distanceKm,
         online: user.online,
         lastSeen: user.lastSeen,
         likesCount: user.likedBy?.length || 0,
         isLiked: currentUser.likes?.some(likeId => likeId.toString() === user._id.toString()) || false
       };
     });
+    
+    // Sort: online users first, then by distance
+    profiles.sort((a, b) => {
+      if (a.online && !b.online) return -1;
+      if (!a.online && b.online) return 1;
+      return a.distanceKm - b.distanceKm;
+    });
+    
+    // Remove distanceKm from response
+    profiles.forEach(p => delete p.distanceKm);
     
     res.json(profiles);
   } catch (error) {

@@ -12,6 +12,8 @@ const userRoutes = require('./routes/user');
 const likesRoutes = require('./routes/likes');
 const notificationsRoutes = require('./routes/notifications');
 const uploadRoutes = require('./routes/upload');
+const chatAccessRoutes = require('./routes/chatAccess');
+const spinRoutes = require('./routes/spin');
 const Message = require('./models/Message');
 const User = require('./models/User');
 const jwt = require('jsonwebtoken');
@@ -38,8 +40,11 @@ app.use('/api/contacts', contactsRoutes);
 app.use('/api/messages', messagesRoutes);
 app.use('/api/nearby', nearbyRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/profile', userRoutes);
 app.use('/api/notifications', notificationsRoutes);
+app.use('/api/chat-access', chatAccessRoutes);
 app.use('/api', uploadRoutes);
+app.use('/api/spin', spinRoutes);
 app.use('/api/likes', (req, res, next) => {
   req.io = io;
   next();
@@ -66,6 +71,14 @@ io.on('connection', (socket) => {
   socket.on('sendMessage', async (data) => {
     try {
       console.log('Received sendMessage:', data);
+      
+      // Check if sender is blocked by receiver
+      const receiver = await User.findById(data.receiver);
+      if (receiver && receiver.blockedUsers.includes(data.sender)) {
+        socket.emit('messageBlocked', { message: 'You are blocked by this user' });
+        return;
+      }
+      
       const message = new Message({
         sender: data.sender,
         receiver: data.receiver,

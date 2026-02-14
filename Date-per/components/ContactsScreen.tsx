@@ -111,14 +111,9 @@ export default function ContactsScreen({ isActive }: { isActive?: boolean }) {
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={[styles.header, { backgroundColor: theme.headerBg }]}>
         <Text style={[styles.title, { color: theme.headerText }]}>Contacts</Text>
-        <View style={styles.headerActions}>
-          <TouchableOpacity style={styles.headerBtn}>
-            <Text style={styles.headerIcon}>♥</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.headerBtn}>
-            <Text style={styles.headerIcon}>🔍</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity style={styles.headerBtn}>
+          <Text style={styles.headerIcon}>🔍</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={[styles.statsBar, { backgroundColor: theme.statBg, borderColor: theme.statBorder }]}>

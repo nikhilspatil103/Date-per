@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Date-per",
-    "slug": "Date-per",
+    "name": "Dating Loop",
+    "slug": "dating-loop",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -58,6 +58,9 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "updates": {
+      "enabled": false
     },
     "extra": {
       "router": {},

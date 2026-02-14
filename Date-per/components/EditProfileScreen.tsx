@@ -14,18 +14,38 @@ export default function EditProfileScreen({ onClose }: { onClose: () => void }) 
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
+  const [bio, setBio] = useState('');
   const [interestIn, setInterestIn] = useState('Female');
   const [height, setHeight] = useState('');
   const [graduation, setGraduation] = useState('');
+  const [bodyType, setBodyType] = useState('');
+  const [smoking, setSmoking] = useState('');
+  const [drinking, setDrinking] = useState('');
+  const [exercise, setExercise] = useState('');
+  const [diet, setDiet] = useState('');
+  const [occupation, setOccupation] = useState('');
+  const [company, setCompany] = useState('');
+  const [school, setSchool] = useState('');
+  const [hometown, setHometown] = useState('');
+  const [currentCity, setCurrentCity] = useState('');
+  const [lookingFor, setLookingFor] = useState('');
+  const [relationshipStatus, setRelationshipStatus] = useState('');
+  const [kids, setKids] = useState('');
   const [profilePhoto, setProfilePhoto] = useState('');
   const [photos, setPhotos] = useState<string[]>([]);
   const [showOnline, setShowOnline] = useState(true);
   const [showDistance, setShowDistance] = useState(true);
   const [allowMessages, setAllowMessages] = useState(true);
   const [showNameEdit, setShowNameEdit] = useState(false);
+  const [showBioEdit, setShowBioEdit] = useState(false);
   const [showInterestEdit, setShowInterestEdit] = useState(false);
   const [showHeightEdit, setShowHeightEdit] = useState(false);
   const [showGraduationEdit, setShowGraduationEdit] = useState(false);
+  const [showBodyTypeEdit, setShowBodyTypeEdit] = useState(false);
+  const [showLifestyleEdit, setShowLifestyleEdit] = useState(false);
+  const [showWorkEdit, setShowWorkEdit] = useState(false);
+  const [showLocationEdit, setShowLocationEdit] = useState(false);
+  const [showRelationshipEdit, setShowRelationshipEdit] = useState(false);
   const [showPrivacyEdit, setShowPrivacyEdit] = useState(false);
   const [showFullPhoto, setShowFullPhoto] = useState(false);
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
@@ -48,6 +68,7 @@ export default function EditProfileScreen({ onClose }: { onClose: () => void }) 
     const userName = await AsyncStorage.getItem('userName');
     const userAge = await AsyncStorage.getItem('userAge');
     const userGender = await AsyncStorage.getItem('userGender');
+    const userBio = await AsyncStorage.getItem('userBio');
     const userInterest = await AsyncStorage.getItem('userInterestIn');
     const userHeight = await AsyncStorage.getItem('userHeight');
     const userGrad = await AsyncStorage.getItem('userGraduation');
@@ -56,6 +77,7 @@ export default function EditProfileScreen({ onClose }: { onClose: () => void }) 
     if (userName) setName(userName);
     if (userAge) setAge(userAge);
     if (userGender) setGender(userGender);
+    if (userBio) setBio(userBio);
     if (userInterest) setInterestIn(userInterest);
     if (userHeight) setHeight(userHeight);
     if (userGrad) setGraduation(userGrad);
@@ -74,6 +96,7 @@ export default function EditProfileScreen({ onClose }: { onClose: () => void }) 
         if (data.name) await AsyncStorage.setItem('userName', data.name);
         if (data.age) await AsyncStorage.setItem('userAge', data.age.toString());
         if (data.gender) await AsyncStorage.setItem('userGender', data.gender);
+        if (data.bio) await AsyncStorage.setItem('userBio', data.bio);
         if (data.interestIn) await AsyncStorage.setItem('userInterestIn', data.interestIn);
         if (data.height) await AsyncStorage.setItem('userHeight', data.height.toString());
         if (data.graduation) await AsyncStorage.setItem('userGraduation', data.graduation);
@@ -217,6 +240,17 @@ export default function EditProfileScreen({ onClose }: { onClose: () => void }) 
             </View>
           </View>
 
+          <TouchableOpacity style={[styles.infoCard, { backgroundColor: theme.card, borderColor: theme.border }]} onPress={() => setShowBioEdit(true)}>
+            <View style={styles.infoIcon}>
+              <Text style={styles.infoEmoji}>📝</Text>
+            </View>
+            <View style={styles.infoContent}>
+              <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>Bio</Text>
+              <Text style={[styles.infoValue, { color: theme.text }]} numberOfLines={2}>{bio || 'Not set'}</Text>
+            </View>
+            <Text style={[styles.infoArrow, { color: theme.textSecondary }]}>›</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity style={[styles.infoCard, { backgroundColor: theme.card, borderColor: theme.border }]} onPress={() => setShowInterestEdit(true)}>
             <View style={styles.infoIcon}>
               <Text style={styles.infoEmoji}>❤️</Text>
@@ -246,6 +280,73 @@ export default function EditProfileScreen({ onClose }: { onClose: () => void }) 
             <View style={styles.infoContent}>
               <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>Education</Text>
               <Text style={[styles.infoValue, { color: theme.text }]}>{graduation || 'Not set'}</Text>
+            </View>
+            <Text style={[styles.infoArrow, { color: theme.textSecondary }]}>›</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Physical & Lifestyle</Text>
+          <TouchableOpacity style={[styles.infoCard, { backgroundColor: theme.card, borderColor: theme.border }]} onPress={() => setShowBodyTypeEdit(true)}>
+            <View style={styles.infoIcon}>
+              <Text style={styles.infoEmoji}>💪</Text>
+            </View>
+            <View style={styles.infoContent}>
+              <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>Body Type</Text>
+              <Text style={[styles.infoValue, { color: theme.text }]}>{bodyType || 'Not set'}</Text>
+            </View>
+            <Text style={[styles.infoArrow, { color: theme.textSecondary }]}>›</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.infoCard, { backgroundColor: theme.card, borderColor: theme.border }]} onPress={() => setShowLifestyleEdit(true)}>
+            <View style={styles.infoIcon}>
+              <Text style={styles.infoEmoji}>🌟</Text>
+            </View>
+            <View style={styles.infoContent}>
+              <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>Lifestyle</Text>
+              <Text style={[styles.infoValue, { color: theme.text }]}>Smoking, Drinking, Exercise</Text>
+            </View>
+            <Text style={[styles.infoArrow, { color: theme.textSecondary }]}>›</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Work & Education</Text>
+          <TouchableOpacity style={[styles.infoCard, { backgroundColor: theme.card, borderColor: theme.border }]} onPress={() => setShowWorkEdit(true)}>
+            <View style={styles.infoIcon}>
+              <Text style={styles.infoEmoji}>💼</Text>
+            </View>
+            <View style={styles.infoContent}>
+              <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>Work Details</Text>
+              <Text style={[styles.infoValue, { color: theme.text }]}>{occupation || 'Not set'}</Text>
+            </View>
+            <Text style={[styles.infoArrow, { color: theme.textSecondary }]}>›</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Location</Text>
+          <TouchableOpacity style={[styles.infoCard, { backgroundColor: theme.card, borderColor: theme.border }]} onPress={() => setShowLocationEdit(true)}>
+            <View style={styles.infoIcon}>
+              <Text style={styles.infoEmoji}>📍</Text>
+            </View>
+            <View style={styles.infoContent}>
+              <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>Location Details</Text>
+              <Text style={[styles.infoValue, { color: theme.text }]}>{currentCity || hometown || 'Not set'}</Text>
+            </View>
+            <Text style={[styles.infoArrow, { color: theme.textSecondary }]}>›</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Relationship</Text>
+          <TouchableOpacity style={[styles.infoCard, { backgroundColor: theme.card, borderColor: theme.border }]} onPress={() => setShowRelationshipEdit(true)}>
+            <View style={styles.infoIcon}>
+              <Text style={styles.infoEmoji}>💕</Text>
+            </View>
+            <View style={styles.infoContent}>
+              <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>Relationship Info</Text>
+              <Text style={[styles.infoValue, { color: theme.text }]}>{lookingFor || 'Not set'}</Text>
             </View>
             <Text style={[styles.infoArrow, { color: theme.textSecondary }]}>›</Text>
           </TouchableOpacity>
@@ -298,6 +399,35 @@ export default function EditProfileScreen({ onClose }: { onClose: () => void }) 
             <TouchableOpacity style={styles.saveBtn} onPress={async () => {
               await updateProfile({ name });
               setShowNameEdit(false);
+            }}>
+              <Text style={styles.saveBtnText}>Save Changes</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showBioEdit} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Edit Bio</Text>
+              <TouchableOpacity onPress={() => setShowBioEdit(false)}>
+                <Text style={styles.closeBtn}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <TextInput
+              style={[styles.input, { height: 100, textAlignVertical: 'top' }]}
+              value={bio}
+              onChangeText={setBio}
+              placeholder="Tell us about yourself..."
+              placeholderTextColor="#888"
+              multiline
+              maxLength={150}
+            />
+            <Text style={{ color: '#888', fontSize: 12, marginBottom: 10 }}>{bio.length}/150</Text>
+            <TouchableOpacity style={styles.saveBtn} onPress={async () => {
+              await updateProfile({ bio });
+              setShowBioEdit(false);
             }}>
               <Text style={styles.saveBtnText}>Save Changes</Text>
             </TouchableOpacity>
@@ -425,6 +555,137 @@ export default function EditProfileScreen({ onClose }: { onClose: () => void }) 
               await updateProfile({ privacy: { showOnline, showDistance, allowMessages } });
               setShowPrivacyEdit(false);
             }}>
+              <Text style={styles.saveBtnText}>Save Changes</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showBodyTypeEdit} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Body Type</Text>
+              <TouchableOpacity onPress={() => setShowBodyTypeEdit(false)}>
+                <Text style={styles.closeBtn}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            {['Slim', 'Athletic', 'Average', 'Curvy'].map((type) => (
+              <TouchableOpacity key={type} style={[styles.interestOption, bodyType === type && styles.interestSelected]} onPress={async () => { setBodyType(type); await updateProfile({ bodyType: type }); setShowBodyTypeEdit(false); }}>
+                <Text style={styles.interestText}>{type}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showLifestyleEdit} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Lifestyle</Text>
+              <TouchableOpacity onPress={() => setShowLifestyleEdit(false)}>
+                <Text style={styles.closeBtn}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={{ color: '#fff', marginBottom: 10 }}>Smoking</Text>
+            <View style={{ flexDirection: 'row', gap: 8, marginBottom: 15 }}>
+              {['Never', 'Occasionally', 'Regularly'].map((opt) => (
+                <TouchableOpacity key={opt} style={[styles.interestOption, { flex: 1 }, smoking === opt && styles.interestSelected]} onPress={() => setSmoking(opt)}>
+                  <Text style={styles.interestText}>{opt}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <Text style={{ color: '#fff', marginBottom: 10 }}>Drinking</Text>
+            <View style={{ flexDirection: 'row', gap: 8, marginBottom: 15 }}>
+              {['Never', 'Socially', 'Regularly'].map((opt) => (
+                <TouchableOpacity key={opt} style={[styles.interestOption, { flex: 1 }, drinking === opt && styles.interestSelected]} onPress={() => setDrinking(opt)}>
+                  <Text style={styles.interestText}>{opt}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <Text style={{ color: '#fff', marginBottom: 10 }}>Exercise</Text>
+            <View style={{ flexDirection: 'row', gap: 8, marginBottom: 15 }}>
+              {['Never', 'Sometimes', 'Often', 'Daily'].map((opt) => (
+                <TouchableOpacity key={opt} style={[styles.interestOption, { flex: 1 }, exercise === opt && styles.interestSelected]} onPress={() => setExercise(opt)}>
+                  <Text style={styles.interestText}>{opt}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <TouchableOpacity style={styles.saveBtn} onPress={async () => { await updateProfile({ smoking, drinking, exercise }); setShowLifestyleEdit(false); }}>
+              <Text style={styles.saveBtnText}>Save Changes</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showWorkEdit} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Work & Education</Text>
+              <TouchableOpacity onPress={() => setShowWorkEdit(false)}>
+                <Text style={styles.closeBtn}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <TextInput style={styles.input} value={occupation} onChangeText={setOccupation} placeholder="Occupation" placeholderTextColor="#888" />
+            <TextInput style={styles.input} value={company} onChangeText={setCompany} placeholder="Company" placeholderTextColor="#888" />
+            <TextInput style={styles.input} value={school} onChangeText={setSchool} placeholder="School" placeholderTextColor="#888" />
+            <TouchableOpacity style={styles.saveBtn} onPress={async () => { await updateProfile({ occupation, company, school }); setShowWorkEdit(false); }}>
+              <Text style={styles.saveBtnText}>Save Changes</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showLocationEdit} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Location</Text>
+              <TouchableOpacity onPress={() => setShowLocationEdit(false)}>
+                <Text style={styles.closeBtn}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <TextInput style={styles.input} value={hometown} onChangeText={setHometown} placeholder="Hometown" placeholderTextColor="#888" />
+            <TextInput style={styles.input} value={currentCity} onChangeText={setCurrentCity} placeholder="Current City" placeholderTextColor="#888" />
+            <TouchableOpacity style={styles.saveBtn} onPress={async () => { await updateProfile({ hometown, currentCity }); setShowLocationEdit(false); }}>
+              <Text style={styles.saveBtnText}>Save Changes</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showRelationshipEdit} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Relationship</Text>
+              <TouchableOpacity onPress={() => setShowRelationshipEdit(false)}>
+                <Text style={styles.closeBtn}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 400 }}>
+              <Text style={{ color: '#fff', marginBottom: 10 }}>Looking For</Text>
+              {['Relationship', 'Friendship', 'Casual', 'Not Sure'].map((opt) => (
+                <TouchableOpacity key={opt} style={[styles.interestOption, lookingFor === opt && styles.interestSelected]} onPress={() => setLookingFor(opt)}>
+                  <Text style={styles.interestText}>{opt}</Text>
+                </TouchableOpacity>
+              ))}
+              <Text style={{ color: '#fff', marginTop: 15, marginBottom: 10 }}>Relationship Status</Text>
+              {['Single', 'Divorced', 'Widowed'].map((opt) => (
+                <TouchableOpacity key={opt} style={[styles.interestOption, relationshipStatus === opt && styles.interestSelected]} onPress={() => setRelationshipStatus(opt)}>
+                  <Text style={styles.interestText}>{opt}</Text>
+                </TouchableOpacity>
+              ))}
+              <Text style={{ color: '#fff', marginTop: 15, marginBottom: 10 }}>Kids</Text>
+              {["Don't have", 'Have kids', 'Want kids', "Don't want kids"].map((opt) => (
+                <TouchableOpacity key={opt} style={[styles.interestOption, kids === opt && styles.interestSelected]} onPress={() => setKids(opt)}>
+                  <Text style={styles.interestText}>{opt}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity style={styles.saveBtn} onPress={async () => { await updateProfile({ lookingFor, relationshipStatus, kids }); setShowRelationshipEdit(false); }}>
               <Text style={styles.saveBtnText}>Save Changes</Text>
             </TouchableOpacity>
           </View>

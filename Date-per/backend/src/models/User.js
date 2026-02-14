@@ -37,8 +37,74 @@ const userSchema = new mongoose.Schema({
   height: {
     type: Number
   },
+  bodyType: {
+    type: String,
+    enum: ['Slim', 'Athletic', 'Average', 'Curvy', '']
+  },
+  eyeColor: {
+    type: String
+  },
+  hairColor: {
+    type: String
+  },
+  smoking: {
+    type: String,
+    enum: ['Never', 'Occasionally', 'Regularly', '']
+  },
+  drinking: {
+    type: String,
+    enum: ['Never', 'Socially', 'Regularly', '']
+  },
+  exercise: {
+    type: String,
+    enum: ['Never', 'Sometimes', 'Often', 'Daily', '']
+  },
+  diet: {
+    type: String,
+    enum: ['Anything', 'Vegetarian', 'Vegan', 'Halal', 'Kosher', '']
+  },
   graduation: {
     type: String
+  },
+  occupation: {
+    type: String
+  },
+  company: {
+    type: String
+  },
+  school: {
+    type: String
+  },
+  hometown: {
+    type: String
+  },
+  currentCity: {
+    type: String
+  },
+  interests: [{
+    type: String
+  }],
+  languages: [{
+    type: String
+  }],
+  lookingFor: {
+    type: String,
+    enum: ['Relationship', 'Friendship', 'Casual', 'Not Sure', '']
+  },
+  relationshipStatus: {
+    type: String,
+    enum: ['Single', 'Divorced', 'Widowed', '']
+  },
+  kids: {
+    type: String,
+    enum: ['Don\'t have', 'Have kids', 'Want kids', 'Don\'t want kids', '']
+  },
+  instagram: {
+    type: String
+  },
+  verified: {
+    type: Boolean,
+    default: false
   },
   privacy: {
     showOnline: { type: Boolean, default: true },
@@ -51,7 +117,24 @@ const userSchema = new mongoose.Schema({
     min: 18
   },
   bio: {
-    type: String
+    type: String,
+    default: ''
+  },
+  online: {
+    type: Boolean,
+    default: false
+  },
+  lastSeen: {
+    type: Date,
+    default: Date.now
+  },
+  coins: {
+    type: Number,
+    default: 100
+  },
+  lastSpinTime: {
+    type: Date,
+    default: null
   },
   contacts: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -65,9 +148,17 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
+  blockedUsers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
   location: {
     type: { type: String, default: 'Point' },
     coordinates: { type: [Number], default: [0, 0] }
+  },
+  deletionScheduledAt: {
+    type: Date,
+    default: null
   },
   createdAt: {
     type: Date,

@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import WebSocketService from '../../services/websocket';
 import UserProfileDetailScreen from '../../components/UserProfileDetailScreen';
 import AvatarV3 from '../../components/AvatarV3';
+import LoopLogo from '../../components/LoopLogo';
 import NotificationCenter from '../../components/NotificationCenter';
 import HeartLoader from '../../components/HeartLoader';
 import { useTheme, colorSchemeNames } from '../../contexts/ThemeContext';
@@ -181,7 +182,13 @@ export default function FindScreen({ onLogout, isActive, pendingNotificationUser
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={[styles.header, { backgroundColor: theme.headerBg }]}>
-        <Text style={[styles.title, { color: theme.headerText }]}>Discover</Text>
+        <View style={styles.brandContainer}>
+          <LoopLogo size={36} color="#fff" />
+          <View>
+            <Text style={[styles.brandName, { color: theme.headerText }]}>Loop</Text>
+            <Text style={[styles.brandTagline, { color: 'rgba(255,255,255,0.8)' }]}>Where Connections Come Full Circle</Text>
+          </View>
+        </View>
         <View style={styles.headerActions}>
           <TouchableOpacity style={styles.headerBtn} onPress={toggleTheme}>
             <Text style={styles.headerIcon}>{mode === 'light' ? '🌙' : '☀️'}</Text>
@@ -199,7 +206,7 @@ export default function FindScreen({ onLogout, isActive, pendingNotificationUser
           </TouchableOpacity>
         </View>
       </View>
-
+    
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
         refreshControl={
@@ -232,7 +239,9 @@ export default function FindScreen({ onLogout, isActive, pendingNotificationUser
                           <Text style={[styles.ageText, { color: profile.gender === 'Male' ? theme.maleText : theme.femaleText }]}>{profile.gender === 'Male' ? '♂' : '♀'} {profile.age}</Text>
                         </View>
                         <Text style={[styles.distance, { color: theme.textSecondary }]} numberOfLines={1}>📍 {profile.distance}</Text>
-                        <Text style={[styles.likeCount, { color: theme.textSecondary }]}>{profile.isLiked ? '❤️' : '🤍'} {profile.likesCount || 0}</Text>
+                        <Text style={[styles.likeCount, { color: theme.textSecondary }]}>
+                          <Text style={{ color: profile?.isLiked === true ? '#FF0000' : '#FFB3D9', fontSize: 12 }}>♥</Text> {profile.likesCount || 0}
+                        </Text>
                       </View>
                       <Text style={[styles.bio, { color: theme.textSecondary }]} numberOfLines={2}>{profile.bio}</Text>
                     </View>
@@ -257,7 +266,9 @@ export default function FindScreen({ onLogout, isActive, pendingNotificationUser
                         <Text style={[styles.ageText, { color: profile.gender === 'Male' ? theme.maleText : theme.femaleText }]}>{profile.gender === 'Male' ? '♂' : '♀'} {profile.age}</Text>
                       </View>
                       <Text style={[styles.listDistance, { color: theme.textSecondary }]}>📍 {profile.distance}</Text>
-                      <Text style={[styles.likeCount, { color: theme.textSecondary }]}>{profile.isLiked ? '❤️' : '🤍'} {profile.likesCount || 0}</Text>
+                      <Text style={[styles.likeCount, { color: theme.textSecondary }]}>
+                        <Text style={{ color: profile?.isLiked === true ? '#FF0000' : '#FFB3D9', fontSize: 10 }}>♥</Text> {profile.likesCount || 0}
+                      </Text>
                     </View>
                     <Text style={[styles.listBio, { color: theme.textSecondary }]} numberOfLines={2}>{profile.bio}</Text>
                   </View>
@@ -431,6 +442,10 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 18,
   },
   title: { fontSize: 28, fontWeight: '800' },
+  brandContainer: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
+
+  brandName: { fontSize: 28, fontWeight: '800', letterSpacing: 0.5 },
+  brandTagline: { fontSize: 10, fontWeight: '500', marginTop: 2, letterSpacing: 0.3 },
   headerActions: { flexDirection: 'row', gap: 8 },
   headerBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center', position: 'relative' },
   headerIcon: { fontSize: 20 },
