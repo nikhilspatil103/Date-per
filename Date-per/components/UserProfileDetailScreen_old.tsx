@@ -115,7 +115,7 @@ export default function UserProfileDetailScreen({ profile, onClose, onLikeUpdate
     try {
       const token = await AsyncStorage.getItem('authToken');
       const endpoint = isContact ? '/api/contacts/remove' : '/api/contacts/add';
-      await fetch(`http://192.168.1.102:3000${endpoint}`, {
+      await fetch(`${API_URL}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
