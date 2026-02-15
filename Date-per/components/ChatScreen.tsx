@@ -28,6 +28,7 @@ export default function ChatScreen({ chat, onClose }: { chat: any; onClose: () =
   const [showMenu, setShowMenu] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState('');
+  const [customReportReason, setCustomReportReason] = useState('');
   const [showUnlockModal, setShowUnlockModal] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
@@ -215,7 +216,7 @@ export default function ChatScreen({ chat, onClose }: { chat: any; onClose: () =
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         quality: 0.5,
         base64: true,

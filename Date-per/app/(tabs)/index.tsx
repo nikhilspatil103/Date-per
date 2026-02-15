@@ -33,7 +33,7 @@ function HomeScreen() {
   const [pendingChatUserId, setPendingChatUserId] = useState<string | null>(null);
   const [pendingNotificationUserId, setPendingNotificationUserId] = useState<string | null>(null);
   const fadeAnim = useRef(new Animated.Value(1)).current;
-  const unreadDebounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const unreadDebounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     checkAuth();

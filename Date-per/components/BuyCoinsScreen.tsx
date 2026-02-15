@@ -8,10 +8,10 @@ const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 44 : StatusBar.currentHeight |
 const FIRST_TIME_OFFER = { id: 0, coins: 100, price: 99, popular: false, bonus: 0, isFirstTime: true };
 
 const REGULAR_PACKAGES = [
-  { id: 2, coins: 120, price: 199, popular: false, bonus: 20 },
-  { id: 3, coins: 250, price: 399, popular: true, bonus: 50 },
-  { id: 4, coins: 500, price: 699, popular: false, bonus: 100 },
-  { id: 5, coins: 1000, price: 1299, popular: false, bonus: 200 },
+  { id: 2, coins: 120, price: 199, popular: false, bonus: 20, isFirstTime: false },
+  { id: 3, coins: 250, price: 399, popular: true, bonus: 50, isFirstTime: false },
+  { id: 4, coins: 500, price: 699, popular: false, bonus: 100, isFirstTime: false },
+  { id: 5, coins: 1000, price: 1299, popular: false, bonus: 200, isFirstTime: false },
 ];
 
 export default function BuyCoinsScreen({ onClose, currentCoins }: { onClose: () => void; currentCoins: number }) {
