@@ -450,7 +450,7 @@ export default function UserProfileDetailScreen({ profile, onClose, onLikeUpdate
           <TouchableOpacity 
             style={[styles.actionBtnSecondary, { backgroundColor: theme.card, borderColor: theme.border }]} 
             onPress={toggleContact}
-          >
+          >z
             <Text style={[styles.actionIconSecondary, { color: theme.text }]}>{isContact ? '✓' : '+'}</Text>
             <Text style={[styles.actionTextSecondary, { color: theme.text }]}>{isContact ? 'Added' : 'Add'}</Text>
           </TouchableOpacity>
