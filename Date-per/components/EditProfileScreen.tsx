@@ -33,7 +33,6 @@ export default function EditProfileScreen({ onClose }: { onClose: () => void }) 
   const [kids, setKids] = useState('');
   const [profilePhoto, setProfilePhoto] = useState('');
   const [photos, setPhotos] = useState<string[]>([]);
-  const [showOnline, setShowOnline] = useState(true);
   const [showDistance, setShowDistance] = useState(true);
   const [allowMessages, setAllowMessages] = useState(true);
   const [showNameEdit, setShowNameEdit] = useState(false);
@@ -364,17 +363,6 @@ export default function EditProfileScreen({ onClose }: { onClose: () => void }) 
             </View>
             <Text style={[styles.infoArrow, { color: theme.textSecondary }]}>›</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.infoCard, { backgroundColor: theme.card, borderColor: theme.border }]} onPress={() => setShowPrivacyEdit(true)}>
-            <View style={styles.infoIcon}>
-              <Text style={styles.infoEmoji}>💬</Text>
-            </View>
-            <View style={styles.infoContent}>
-              <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>Chat Status</Text>
-              <Text style={[styles.infoValue, { color: theme.text }]}>{showOnline ? 'Online' : 'Offline'}</Text>
-            </View>
-            <Text style={[styles.infoArrow, { color: theme.textSecondary }]}>›</Text>
-          </TouchableOpacity>
         </View>
 
         <View style={{ height: 40 }} />
@@ -532,13 +520,6 @@ export default function EditProfileScreen({ onClose }: { onClose: () => void }) 
             </View>
             <TouchableOpacity 
               style={styles.privacyOption} 
-              onPress={() => setShowOnline(!showOnline)}
-            >
-              <Text style={styles.privacyText}>Show Online Status</Text>
-              <Text style={styles.privacyValue}>{showOnline ? '✓' : '✕'}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.privacyOption} 
               onPress={() => setShowDistance(!showDistance)}
             >
               <Text style={styles.privacyText}>Show Distance</Text>
@@ -552,7 +533,7 @@ export default function EditProfileScreen({ onClose }: { onClose: () => void }) 
               <Text style={styles.privacyValue}>{allowMessages ? '✓' : '✕'}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.saveBtn} onPress={async () => {
-              await updateProfile({ privacy: { showOnline, showDistance, allowMessages } });
+              await updateProfile({ privacy: { showDistance, allowMessages } });
               setShowPrivacyEdit(false);
             }}>
               <Text style={styles.saveBtnText}>Save Changes</Text>

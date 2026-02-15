@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Dating Loop",
-    "slug": "dating-loop",
+    "name": "Date Loopr",
+    "slug": "date loopr",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -23,7 +23,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.nikhilspatil.Dateper",
+      "package": "com.nikhilspatil.dateLoop",
       "permissions": [
         "READ_MEDIA_IMAGES",
         "READ_EXTERNAL_STORAGE",
@@ -39,7 +39,7 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow DatePer to access your photos to update your profile."
+          "photosPermission": "Allow Date loop to access your photos to update your profile."
         }
       ],
       [

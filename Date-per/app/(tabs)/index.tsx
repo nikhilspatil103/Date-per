@@ -96,7 +96,7 @@ function HomeScreen() {
 
     Alert.alert(
       'Location Permission',
-      'DatePer needs your location to show nearby users and calculate distances.',
+      'Date Loop needs your location to show nearby users and calculate distances.',
       [
         { 
           text: 'Not Now', 
@@ -372,7 +372,7 @@ function HomeScreen() {
         onHide={() => setToast({ ...toast, visible: false })} 
       />
       <Text style={styles.logo}>💕</Text>
-      <Text style={styles.title}>Loop</Text>
+      <Text style={styles.title}>Date Loop</Text>
       <Text style={styles.subtitle}>
         {isLogin ? 'Where Connections Come Full Circle' : signupStep === 1 ? 'Create your account' : 'Complete your profile'}
       </Text>
