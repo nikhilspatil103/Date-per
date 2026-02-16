@@ -37,10 +37,24 @@
     },
     "plugins": [
       "expo-router",
+      "expo-dev-client",
       [
         "expo-image-picker",
         {
           "photosPermission": "Allow Date loop to access your photos to update your profile."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Date loop to use your location to show nearby users."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#FF6B9D"
         }
       ],
       [
