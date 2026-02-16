@@ -25,9 +25,10 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.nikhilspatil.dateLoop",
       "permissions": [
-        "READ_MEDIA_IMAGES",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
@@ -65,8 +66,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "333ce1eb-f7e2-4615-9961-e09eca5d67da"
+        "projectId": "fd80082c-7cc0-4ea0-9bf5-b2d6f2a268af"
       }
-    }
+    },
+    "owner": "nikhilspatil055"
   }
 }
